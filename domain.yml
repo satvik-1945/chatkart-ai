@@ -5,30 +5,70 @@ intents:
   - goodbye
   - affirm
   - deny
-  - mood_great
-  - mood_unhappy
-  - bot_challenge
+  - create_profile
+  - change_address
+  - confirm_purchase
+  - ask_payment
+  - ask_question
+  - inform
+
+entities:
+  - name
+  - phone_number
+  - address
+  - article_id
+  - delivery_tag  # like 'home', 'work', etc.
+
+slots:
+  name:
+    type: text
+    influence_conversation: true
+  phone_number:
+    type: text
+    influence_conversation: true
+  address:
+    type: text
+    influence_conversation: true
+  loyalty_score:
+    type: float
+    initial_value: 0.0
+    influence_conversation: false
+  article_id:
+    type: text
+    influence_conversation: true
+  delivery_tag:
+    type: categorical
+    values:
+      - home
+      - work
+      - other
+    influence_conversation: true
 
 responses:
   utter_greet:
-  - text: "Hey! How are you?"
-
-  utter_cheer_up:
-  - text: "Here is something to cheer you up:"
-    image: "https://i.imgur.com/nGF1K8f.jpg"
-
-  utter_did_that_help:
-  - text: "Did that help you?"
-
-  utter_happy:
-  - text: "Great, carry on!"
-
+    - text: "Namaste 👋, how can I help you today?"
   utter_goodbye:
-  - text: "Bye"
+    - text: "Thank you! Hope to see you again 🛍️"
+  utter_ask_name:
+    - text: "Can you please tell me your name?"
+  utter_ask_phone_number:
+    - text: "Could you share your work phone number?"
+  utter_ask_address:
+    - text: "What's your delivery address?"
+  utter_profile_saved:
+    - text: "Your profile has been saved successfully ✅"
+  utter_ask_article_id:
+    - text: "Please provide the article number you want to purchase."
+  utter_purchase_confirmed:
+    - text: "Great! Your order is confirmed. 📦"
+  utter_send_payment_info:
+    - text: "Please scan the QR code or send UPI to 9999999999@upi"
+  utter_address_updated:
+    - text: "Your address has been updated."
 
-  utter_iamabot:
-  - text: "I am a bot, powered by Rasa."
-
-session_config:
-  session_expiration_time: 60
-  carry_over_slots_to_new_session: true
+actions:
+  - action_save_profile
+  - action_confirm_purchase
+  - action_change_address
+  - action_send_payment_info
+  - action_answer_query
