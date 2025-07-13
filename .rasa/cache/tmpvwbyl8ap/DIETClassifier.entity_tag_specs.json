@@ -1,0 +1,52 @@
+[
+  {
+    "tag_name": "entity",
+    "ids_to_tags": {
+      "1": "B-address",
+      "2": "I-address",
+      "3": "L-address",
+      "4": "U-address",
+      "5": "B-article_id",
+      "6": "I-article_id",
+      "7": "L-article_id",
+      "8": "U-article_id",
+      "9": "B-delivery_tag",
+      "10": "I-delivery_tag",
+      "11": "L-delivery_tag",
+      "12": "U-delivery_tag",
+      "13": "B-name",
+      "14": "I-name",
+      "15": "L-name",
+      "16": "U-name",
+      "17": "B-phone_number",
+      "18": "I-phone_number",
+      "19": "L-phone_number",
+      "20": "U-phone_number",
+      "0": "O"
+    },
+    "tags_to_ids": {
+      "B-address": 1,
+      "I-address": 2,
+      "L-address": 3,
+      "U-address": 4,
+      "B-article_id": 5,
+      "I-article_id": 6,
+      "L-article_id": 7,
+      "U-article_id": 8,
+      "B-delivery_tag": 9,
+      "I-delivery_tag": 10,
+      "L-delivery_tag": 11,
+      "U-delivery_tag": 12,
+      "B-name": 13,
+      "I-name": 14,
+      "L-name": 15,
+      "U-name": 16,
+      "B-phone_number": 17,
+      "I-phone_number": 18,
+      "L-phone_number": 19,
+      "U-phone_number": 20,
+      "O": 0
+    },
+    "num_tags": 21
+  }
+]

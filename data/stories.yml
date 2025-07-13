@@ -2,29 +2,36 @@ version: "3.1"
 
 stories:
 
-- story: happy path
+- story: greet user
   steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: mood_great
-  - action: utter_happy
+    - intent: greet
+    - action: utter_greet
 
-- story: sad path 1
+- story: create customer profile
   steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: mood_unhappy
-  - action: utter_cheer_up
-  - action: utter_did_that_help
-  - intent: affirm
-  - action: utter_happy
+    - intent: create_profile
+    - action: action_save_profile
+    - action: utter_profile_saved
 
-- story: sad path 2
+- story: change address flow
   steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: mood_unhappy
-  - action: utter_cheer_up
-  - action: utter_did_that_help
-  - intent: deny
-  - action: utter_goodbye
+    - intent: change_address
+    - action: action_change_address
+    - action: utter_address_updated
+
+- story: confirm article purchase
+  steps:
+    - intent: confirm_purchase
+    - action: action_confirm_purchase
+    - action: utter_purchase_confirmed
+
+- story: ask for payment
+  steps:
+    - intent: ask_payment
+    - action: action_send_payment_info
+    - action: utter_send_payment_info
+
+- story: ask general question
+  steps:
+    - intent: ask_question
+    - action: action_answer_query

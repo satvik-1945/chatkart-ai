@@ -22,28 +22,43 @@ entities:
 slots:
   name:
     type: text
-    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: name
+
   phone_number:
     type: text
-    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: phone_number
+
   address:
     type: text
-    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: address
+
   loyalty_score:
     type: float
     initial_value: 0.0
-    influence_conversation: false
+    mappings:
+      - type: custom  # You will set this manually in the action
+
   article_id:
     type: text
-    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: article_id
   delivery_tag:
-    type: categorical
-    values:
-      - home
-      - work
-      - other
-    influence_conversation: true
-
+    type: text
+    mappings:
+      - type: from_entity
+        entity: delivery_tag
+  email:
+    type: text
+    mappings:
+      - type: from_entity
+        entity: email
 responses:
   utter_greet:
     - text: "Namaste 👋, how can I help you today?"
@@ -65,6 +80,8 @@ responses:
     - text: "Please scan the QR code or send UPI to 9999999999@upi"
   utter_address_updated:
     - text: "Your address has been updated."
+  utter_iamabot:
+    - text: "I am ChatKart AI, your virtual assistant."
 
 actions:
   - action_save_profile
@@ -72,3 +89,8 @@ actions:
   - action_change_address
   - action_send_payment_info
   - action_answer_query
+
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true

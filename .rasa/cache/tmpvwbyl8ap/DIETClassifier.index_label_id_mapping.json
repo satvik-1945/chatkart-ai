@@ -1,0 +1,12 @@
+{
+  "0": "affirm",
+  "1": "ask_payment",
+  "2": "ask_question",
+  "3": "change_address",
+  "4": "confirm_purchase",
+  "5": "create_profile",
+  "6": "deny",
+  "7": "goodbye",
+  "8": "greet",
+  "9": "inform"
+}

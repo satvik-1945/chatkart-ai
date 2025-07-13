@@ -1,91 +1,76 @@
 version: "3.1"
 
 nlu:
+
 - intent: greet
   examples: |
-    - hey
-    - hello
     - hi
-    - hello there
+    - hello
+    - hey there
+    - namaste
     - good morning
     - good evening
-    - moin
-    - hey there
-    - let's go
-    - hey dude
-    - goodmorning
-    - goodevening
-    - good afternoon
 
 - intent: goodbye
   examples: |
-    - cu
-    - good by
-    - cee you later
-    - good night
     - bye
-    - goodbye
-    - have a nice day
-    - see you around
-    - bye bye
+    - okay thanks
     - see you later
+    - thank you
+    - talk to you soon
 
 - intent: affirm
   examples: |
     - yes
-    - y
-    - indeed
+    - haan
     - of course
-    - that sounds good
-    - correct
+    - definitely
+    - sure
 
 - intent: deny
   examples: |
     - no
-    - n
-    - never
-    - I don't think so
-    - don't like that
-    - no way
-    - not really
+    - nahi
+    - not now
+    - maybe later
 
-- intent: mood_great
+- intent: create_profile
   examples: |
-    - perfect
-    - great
-    - amazing
-    - feeling like a king
-    - wonderful
-    - I am feeling very good
-    - I am great
-    - I am amazing
-    - I am going to save the world
-    - super stoked
-    - extremely good
-    - so so perfect
-    - so good
-    - so perfect
+    - My name is [Anjali](name)
+    - I am [Pooja](name) and my number is [9876543210](phone_number)
+    - Save my details: [Rekha](name), [9998887777](phone_number), [123 MG Road, Bhopal](address)
+    - [Satya](name), [1234567890](phone_number), [home address is 4th cross, JP Nagar, Bangalore](address)
 
-- intent: mood_unhappy
+- intent: change_address
   examples: |
-    - my day was horrible
-    - I am sad
-    - I don't feel very well
-    - I am disappointed
-    - super sad
-    - I'm so sad
-    - sad
-    - very sad
-    - unhappy
-    - not good
-    - not very good
-    - extremly sad
-    - so saad
-    - so sad
+    - I want to change my address
+    - deliver it to my [office](delivery_tag)
+    - Please update my address to [22 Krishna Colony, Indore](address)
+    - Change delivery location to [home](delivery_tag)
 
-- intent: bot_challenge
+- intent: confirm_purchase
   examples: |
-    - are you a bot?
-    - are you a human?
-    - am I talking to a bot?
-    - am I talking to a human?
+    - I want to buy article [SK1009](article_id)
+    - Book [FZ9981](article_id)
+    - Confirm order for [TX904](article_id)
+    - Please order [AR105](article_id) for me
+
+- intent: ask_payment
+  examples: |
+    - How do I pay?
+    - Send me QR
+    - Give me your UPI
+    - How to send the money?
+
+- intent: ask_question
+  examples: |
+    - What is the delivery time?
+    - Do you have cash on delivery?
+    - Can I return it?
+    - What if the size doesn't fit?
+
+- intent: inform
+  examples: |
+    - My number is [8765432109](phone_number)
+    - Send to [MG Road, Pune](address)
+    - [TX0101](article_id)
