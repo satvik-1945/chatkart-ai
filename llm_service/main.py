@@ -7,6 +7,7 @@ app = FastAPI(title="Chatkart LLM Orchestrator")
 class QueryRequest(BaseModel):
     user_query: str
     context: dict
+    vendor_id: str 
 
 class QueryResponse(BaseModel):
     response: str
@@ -19,6 +20,7 @@ async def chatbot_query(request: QueryRequest):
     # Extract user query and context from the request
     user_query = request.user_query
     context = request.context
+    vendor_id = request.vendor_id
 
     # Call the Ollama client to get the response
     prompt = f"User Query: {user_query}\nContext: {context}"
