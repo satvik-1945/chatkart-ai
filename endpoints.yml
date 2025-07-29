@@ -43,3 +43,7 @@
 
 action_endpoint:
   url: "http://localhost:5055/webhook"
+
+# custom api for LLM service
+llm_service:
+  url: "http://localhost:8000/v1/chatbot/query"
