@@ -20,6 +20,9 @@ entities:
   - delivery_tag  # like 'home', 'work', etc.
 
 slots:
+  vendor_id:
+    type:text
+    influence_conversation: true
   name:
     type: text
     mappings:
@@ -89,6 +92,7 @@ actions:
   - action_change_address
   - action_send_payment_info
   - action_answer_query
+  - action_query_llm  
 
 
 session_config:
