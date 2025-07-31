@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   rasa:
-    image: rasa/rasa:3.6.8
+    image: rasa/rasa:3.6.21
     container_name: rasa_server
     volumes:
       - ./:/app
