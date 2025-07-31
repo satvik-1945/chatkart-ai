@@ -1,11 +1,15 @@
 import requests 
 import json
+import os
 
-OLLAMA_API_URL = "http://localhost:11434/api/generate"
+OLLAMA_API_URL = os.getenv("OLLAMA_API_URL", "http://localhost:11434")
+DEFAULT_LLM_MODEL = os.getenv("DEFAULT_LLM_MODEL", "deepseek-r1:1.5b") 
 
-def query_ollama(prompt: str, model:str = "deepseek-r1:1.5b") -> str:
+full_api_url = f"{OLLAMA_API_URL}/api/generate"
+
+def query_ollama(prompt: str, model:str = DEFAULT_LLM_MODEL) -> str:
     payload = {"model": model, "prompt": prompt, "stream": True}
-    with requests.post(OLLAMA_API_URL, json=payload, stream=True) as r:
+    with requests.post(full_api_url, json=payload, stream=True) as r:
         if r.status_code != 200:
             return "Error: Failed to reach OLlama."
         

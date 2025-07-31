@@ -14,15 +14,10 @@ class QueryResponse(BaseModel):
 
 @app.post("/chatbot/query", response_model=QueryResponse)
 async def chatbot_query(request: QueryRequest):
-    """
-    Endpoint to handle user queries and return responses from the LLM.
-    """
-    # Extract user query and context from the request
     user_query = request.user_query
     context = request.context
     vendor_id = request.vendor_id
 
-    # Call the Ollama client to get the response
     prompt = f"User Query: {user_query}\nContext: {context}"
     response = query_ollama(prompt)
 
