@@ -17,12 +17,16 @@ entities:
   - phone_number
   - address
   - article_id
-  - delivery_tag  # like 'home', 'work', etc.
+  - delivery_tag   # like 'home', 'work', etc.
+  - email
 
 slots:
   vendor_id:
-    type:text
+    type: text
     influence_conversation: true
+    mappings:
+      - type: custom    # Will be set manually in actions
+
   name:
     type: text
     mappings:
@@ -45,44 +49,57 @@ slots:
     type: float
     initial_value: 0.0
     mappings:
-      - type: custom  # You will set this manually in the action
+      - type: custom    # Will be updated via custom action
 
   article_id:
     type: text
     mappings:
       - type: from_entity
         entity: article_id
+
   delivery_tag:
     type: text
     mappings:
       - type: from_entity
         entity: delivery_tag
+
   email:
     type: text
     mappings:
       - type: from_entity
         entity: email
+
 responses:
   utter_greet:
     - text: "Namaste 👋, how can I help you today?"
+
   utter_goodbye:
     - text: "Thank you! Hope to see you again 🛍️"
+
   utter_ask_name:
     - text: "Can you please tell me your name?"
+
   utter_ask_phone_number:
     - text: "Could you share your work phone number?"
+
   utter_ask_address:
     - text: "What's your delivery address?"
+
   utter_profile_saved:
     - text: "Your profile has been saved successfully ✅"
+
   utter_ask_article_id:
     - text: "Please provide the article number you want to purchase."
+
   utter_purchase_confirmed:
     - text: "Great! Your order is confirmed. 📦"
+
   utter_send_payment_info:
     - text: "Please scan the QR code or send UPI to 9999999999@upi"
+
   utter_address_updated:
     - text: "Your address has been updated."
+
   utter_iamabot:
     - text: "I am ChatKart AI, your virtual assistant."
 
@@ -92,8 +109,7 @@ actions:
   - action_change_address
   - action_send_payment_info
   - action_answer_query
-  - action_query_llm  
-
+  - action_query_llm
 
 session_config:
   session_expiration_time: 60

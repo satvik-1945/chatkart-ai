@@ -1,0 +1,13 @@
+# Use the official Rasa SDK image
+FROM rasa/rasa-sdk:3.7.0
+
+WORKDIR /app
+
+# Copy actions folder into container
+COPY actions /app/actions
+
+# Install extra Python packages for actions
+COPY requirements-actions.txt /app/
+RUN pip install -r requirements-actions.txt
+
+CMD ["start", "--actions", "actions"]   
