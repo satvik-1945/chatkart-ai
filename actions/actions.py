@@ -2,6 +2,10 @@ from typing import Any, Text, Dict, List, Optional
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher  
 from rasa_sdk.events import SlotSet
+from commons.utils.MongoDBClient import MongoDBClient
+from commons.utils.CustomerService import CustomerService
+from commons.utils.InventoryService import InventoryService
+from commons.utils.VendorService import VendorService
 
 USER_PROFILE = {}
 ORDERS = {}
@@ -10,23 +14,21 @@ class ActionSaveProfile(Action):
     def name(self) -> Text:
         return "action_save_profile"
 
-    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+    async def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         
-        name  = tracker.get_slot("name")
-        phone = tracker.get_slot("phone_number")
-        address = tracker.get_slot("address")
-        email = tracker.get_slot("email")
+        customer_data = {
+            "vendor_id": tracker.get_slot("vendor_id"),
+            "name": tracker.get_slot("name"),
+            "phone_number": tracker.get_slot("phone_number"),
+            "address": tracker.get_slot("address"),
+            "email": tracker.get_slot("email"),
+        }
 
-        if name and phone:
-            USER_PROFILE['name'] = name
-            USER_PROFILE['phone'] = phone
-            USER_PROFILE['address'] = address if address else "Not provided"
-            USER_PROFILE['email'] = email if email else "Not provided"
-            
-            dispatcher.utter_message(text=f"Profile saved: {name}")
+        success = CustomerService.add_customer(customer_data)
+        if success:
+            dispatcher.utter_message(text="Profile saved to MongoDB ✅")
         else:
-            dispatcher.utter_message(text="Please provide both name and phone number to save your profile.")
-
+            dispatcher.utter_message(text="Customer already exists ⚠️")
         return []
     
 class ActionChangeAddress(Action):
