@@ -8,6 +8,7 @@ COPY actions /app/actions
 
 # Install extra Python packages for actions
 COPY requirements-actions.txt /app/
-RUN pip install -r requirements-actions.txt
+RUN pip install -r requirements-actions.txt && \
+    pip install --upgrade git+https://github.com/satvik-1945/chatkart-commons.git  
 
 CMD ["start", "--actions", "actions"]   
