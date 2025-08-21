@@ -11,3 +11,24 @@ rules:
   steps:
   - intent: bot_challenge
   - action: utter_iamabot
+
+- rule: Handle all general queries with LLM
+  steps:
+  - intent: ask_llm
+  - action: action_query_llm
+
+- rule: Activate profile form
+  steps:
+  - intent: create_profile
+  - action: profile_form
+  - active_loop: profile_form
+
+- rule: Submit profile form
+  condition:
+  - active_loop: profile_form
+  steps:
+  - action: profile_form
+  - active_loop: null
+  - slot_was_set:
+    - requested_slot: null
+  - action: validate_profile_form # This runs our custom code after the form is filled
