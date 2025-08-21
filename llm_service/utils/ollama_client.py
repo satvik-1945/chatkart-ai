@@ -2,7 +2,7 @@ import requests
 import json
 import os
 
-OLLAMA_API_URL = os.getenv("OLLAMA_API_URL", "http://localhost:11434")
+OLLAMA_API_URL = os.getenv("OLLAMA_API_URL", "http://ollama_server:11434")
 DEFAULT_LLM_MODEL = os.getenv("DEFAULT_LLM_MODEL", "deepseek-r1:1.5b") 
 
 full_api_url = f"{OLLAMA_API_URL}/api/generate"
