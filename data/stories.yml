@@ -13,7 +13,7 @@ stories:
     - intent: inform
       entities:
         - address: "123 New Street, Mumbai" # User provides the address
-    - action: actions_change_address # Action runs to update the address in the DB
+    - action: action_change_address # Action runs to update the address in the DB
     - action: utter_address_updated
 
 - story: confirm purchase when article ID is missing
