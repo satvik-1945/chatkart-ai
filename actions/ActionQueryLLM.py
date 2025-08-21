@@ -3,7 +3,7 @@ from typing import Dict, Any,Text,List
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 
-LLM_URL = "http://localhost:8000/chatbot/query"
+LLM_URL = "http://llm_service:8000/chatbot/query" 
 
 class ActionQueryLLM(Action):
 
@@ -12,14 +12,18 @@ class ActionQueryLLM(Action):
 
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[str, Any]) -> list[Dict[str, Any]]:
         user_query = tracker.latest_message.get('text')
-        context = {
-            "vendor_id":tracker.get_slot("vendor_id"),
-            "conversation":tracker.events
-        }
+        vendor_id = tracker.get_slot("vendor_id")
+        
+        if not vendor_id:
+            dispatcher.utter_message(text="Sorry, I need a vendor ID to proceed.")
+            return []
 
         payload = {
             "user_query": user_query,
-            "context": context
+            "vendor_id": vendor_id,
+            "context": {
+                "conversation_events": tracker.events[-5:]
+            }
         }
         try:
             res = requests.post(LLM_URL, json=payload,timeout=10)

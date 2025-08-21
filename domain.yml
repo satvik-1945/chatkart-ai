@@ -9,15 +9,15 @@ intents:
   - change_address
   - confirm_purchase
   - ask_payment
-  - ask_question
   - inform
+  - ask_llm  
 
 entities:
   - name
   - phone_number
   - address
   - article_id
-  - delivery_tag   # like 'home', 'work', etc.
+  - delivery_tag
   - email
 
 slots:
@@ -32,24 +32,28 @@ slots:
     mappings:
       - type: from_entity
         entity: name
-
   phone_number:
     type: text
     mappings:
       - type: from_entity
         entity: phone_number
-
   address:
     type: text
     mappings:
       - type: from_entity
         entity: address
+  email:
+    type: text
+    mappings:
+      - type: from_entity
+        entity: email
+
 
   loyalty_score:
     type: float
     initial_value: 0.0
     mappings:
-      - type: custom    # Will be updated via custom action
+      - type: custom
 
   article_id:
     type: text
@@ -63,53 +67,49 @@ slots:
       - type: from_entity
         entity: delivery_tag
 
-  email:
-    type: text
-    mappings:
-      - type: from_entity
-        entity: email
+  
 
 responses:
   utter_greet:
     - text: "Namaste 👋, how can I help you today?"
-
   utter_goodbye:
     - text: "Thank you! Hope to see you again 🛍️"
-
   utter_ask_name:
-    - text: "Can you please tell me your name?"
-
+    - text: "What's your full name?"
   utter_ask_phone_number:
-    - text: "Could you share your work phone number?"
-
+    - text: "What's your 10-digit phone number?"
   utter_ask_address:
-    - text: "What's your delivery address?"
-
-  utter_profile_saved:
-    - text: "Your profile has been saved successfully ✅"
-
+    - text: "What's your complete delivery address?"
+  utter_ask_email:
+    - text: "And finally, what's your email address?"
   utter_ask_article_id:
     - text: "Please provide the article number you want to purchase."
-
   utter_purchase_confirmed:
     - text: "Great! Your order is confirmed. 📦"
-
   utter_send_payment_info:
     - text: "Please scan the QR code or send UPI to 9999999999@upi"
-
   utter_address_updated:
     - text: "Your address has been updated."
-
   utter_iamabot:
     - text: "I am ChatKart AI, your virtual assistant."
+  utter_profile_created:
+    - text: "Thank you, {name}! Your profile has been created successfully. ✅"
 
 actions:
-  - action_save_profile
+  - action_session_start
   - action_confirm_purchase
   - action_change_address
   - action_send_payment_info
-  - action_answer_query
-  - action_query_llm
+  - action_query_llm 
+  - validate_profile_form
+
+forms:
+  profile_form:
+    required_slots:
+      - name
+      - phone_number
+      - address
+      - email
 
 session_config:
   session_expiration_time: 60

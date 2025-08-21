@@ -41,12 +41,5 @@
 #  password: password
 #  queue: queue
 
-rasa_server:
-  url: "http://localhost:5005"
-
 action_endpoint:
-  url: "http://localhost:5055/webhook"
-
-# custom api for LLM service
-llm_service:
-  url: "http://localhost:8000/v1/chatbot/query"
+  url: "http://actions:5055/webhook" 
