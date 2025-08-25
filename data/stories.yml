@@ -1,42 +1,104 @@
 version: "3.1"
-
 stories:
 - story: happy path greet
   steps:
     - intent: greet
     - action: utter_greet
 
-- story: change address when not provided initially
-  steps:
-    - intent: change_address  # User says "I want to change my address"
-    - action: utter_ask_address # Bot asks for the new address
-    - intent: inform
-      entities:
-        - address: "123 New Street, Mumbai" # User provides the address
-    - action: action_change_address # Action runs to update the address in the DB
-    - action: utter_address_updated
+# - story: change address when not provided initially
+#   steps:
+#   - intent: change_address
+#   - action: utter_ask_address
+#   - intent: inform
+#     entities:
+#       - address: "123 New Street, Mumbai"
+#   - action: action_change_address
 
-- story: confirm purchase when article ID is missing
+- story: Happy path for profile creation form
   steps:
-    - intent: confirm_purchase # User says "I want to buy this"
-    - action: utter_ask_article_id # Bot asks for the ID
-    - intent: inform
-      entities:
-        - article_id: "SKU-5544" # User provides the article ID
-    - action: action_confirm_purchase
-    - action: utter_purchase_confirmed
+  - intent: create_profile
+  - action: profile_form
+  - active_loop: profile_form
+  - slot_was_set:
+    - requested_slot: name
+  - intent: inform
+    entities:
+    - name: "Priya Sharma"
+  - action: profile_form
+  - slot_was_set:
+    - name: "Priya Sharma"
+  - slot_was_set:
+    - requested_slot: phone_number
+  - intent: inform
+    entities:
+    - phone_number: "9876598765"
+  - action: profile_form
+  - slot_was_set:
+    - phone_number: "9876598765"
+  - slot_was_set:
+    - requested_slot: address
+  - intent: inform
+    entities:
+    - address: "123 Blossom Gardens, Bangalore"
+  - action: profile_form
+  - slot_was_set:
+    - address: "123 Blossom Gardens, Bangalore"
+  - slot_was_set:
+    - requested_slot: email
+  - intent: inform
+    entities:
+    - email: "priya.s@example.com"
+  - action: profile_form
+  - active_loop: null
+  - slot_was_set:
+    - requested_slot: null
+  - action: validate_profile_form
 
-- story: complete purchase and payment flow
+- story: User provides all profile info at once
   steps:
-    - intent: confirm_purchase
-      entities:
-        - article_id: "XYZ-123" # User provides ID from the start
-    - action: action_confirm_purchase
-    - action: utter_purchase_confirmed
-    - intent: ask_payment
-    - action: action_send_payment_info
+  - intent: create_profile
+    entities:
+    - name: "Satvik Tejas"
+    - phone_number: "7060892798"
+    - address: "546 green park bareilly"
+  - action: profile_form
+  - active_loop: profile_form
+  - slot_was_set:
+    - name: "Satvik Tejas"
+  - slot_was_set:
+    - phone_number: "7060892798"
+  - slot_was_set:
+    - address: "546 green park bareilly"
+  - slot_was_set:
+    - requested_slot: email
+  - intent: inform
+    entities:
+    - email: "satvik.t@example.com"
+  - action: profile_form
+  - active_loop: null
+  - slot_was_set:
+    - requested_slot: null
+  - action: validate_profile_form
 
-- story: user says goodbye
+- story: User stops the profile form
   steps:
+  - intent: create_profile
+  - action: profile_form
+  - active_loop: profile_form
   - intent: goodbye
   - action: utter_goodbye
+  - action: action_deactivate_loop
+  - active_loop: null
+
+- story: User interrupts profile form to ask a question
+  steps:
+  - intent: create_profile
+  - action: profile_form
+  - active_loop: profile_form
+  - slot_was_set:
+    - requested_slot: name
+  - intent: ask_llm
+  - action: action_query_llm
+  - action: profile_form
+  - slot_was_set:
+    - requested_slot: name

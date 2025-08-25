@@ -9,3 +9,7 @@ exit
 ls
 rasa shell
 exit
+ls
+cd models
+ls
+exit

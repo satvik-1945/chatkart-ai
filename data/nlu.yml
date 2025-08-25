@@ -1,3 +1,5 @@
+
+
 version: "3.1"
 nlu:
 - intent: greet
@@ -7,6 +9,7 @@ nlu:
     - hey there
     - namaste
     - good morning
+
 - intent: goodbye
   examples: |
     - bye
@@ -14,57 +17,132 @@ nlu:
     - see you later
     - thank you
     - talk to you soon
+
 - intent: affirm
   examples: |
     - yes
     - haan
     - of course
     - definitely
+
 - intent: deny
   examples: |
     - no
     - nahi
     - not now
     - maybe later
+
 - intent: create_profile
   examples: |
-    - My name is [Anjali](name)
-    - I am [Pooja](name) and my number is [9876543210](phone_number)
-    - Save my details: [Rekha](name), [9998887777](phone_number), [123 MG Road, Bhopal](address)
-    - [Satya](name), [1234567890](phone_number), [home address is 4th cross, JP Nagar, Bangalore](address)
+    - I want to create a profile
+    - I need to sign up
+    - Can I register?
+    - Let's create my account
+    - Save my details
+
 - intent: change_address
   examples: |
     - I want to change my address
     - deliver it to my [office](delivery_tag)
     - Please update my address to [22 Krishna Colony, Indore](address)
     - Change delivery location to [home](delivery_tag)
-- intent: confirm_purchase
+
+- intent: request_product_by_id
   examples: |
-    - I want to buy article [SK1009](article_id)
-    - Book [FZ9981](article_id)
-    - Confirm order for [TX904](article_id)
-- intent: ask_payment
-  examples: |
-    - How do I pay?
-    - Send me QR
-    - Give me your UPI
-    - How to send the money?
+    - I want article [21may25-1](article_id)
+    - show me [25jun25-30](article_id)
+    - details for [01jan26-100](article_id)
+    - book [22aug25-5](article_id)
+
 - intent: inform
   examples: |
-    - My number is [8765432109](phone_number)
-    - Send to [MG Road, Pune](address)
-    - [TX0101](article_id)
+    # --- Examples for providing a NAME ---
+    - my name is [Priya Sharma](name)
+    - you can call me [Rohan Kumar](name)
+    - I'm [Anjali Singh](name)
+    - it's [Satvik Tejas](name)
+    - [Amit Patel](name)
+    - [Fatima Ansari](name)
+    - [Siddharth Iyer](name)
+    - [Kavita Reddy](name)
+    - [Arjun Malhotra](name)
+    - [Meera Chatterjee](name)
+    - My full name is [Aditya Varma](name)
+    - Please use the name [Dr. R. Gupta](name)
+    - It is [Ms. Pooja Hegde](name)
+    - [Aisha Begum](name)
+    - I go by [Vikram Rathore](name)
+    - [Mr. Sameer Khan](name)
+    - [Nisha Desai](name)
+    - [Deepak Soni](name)
+    - [A. K. Menon](name)
+    - [Sunita Kumari](name)
 
-- intent: ask_llm # Consolidated intent for all questions
+    # --- Examples for providing a PHONE NUMBER ---
+    - my phone number is [9876543210](phone_number)
+    - it's [9988776655](phone_number)
+    - [987-654-3210](phone_number)
+    - [987 654 3210](phone_number)
+    - contact me at [+919876543210](phone_number)
+    - [+91 9988776655](phone_number)
+    - phone is [7060892798](phone_number)
+    - [8765432109](phone_number)
+    - My mobile is [9123456789](phone_number)
+    - You can reach me on [8887776666](phone_number)
+    - +(91) 98765 12345
+    - The number is [777-888-9999](phone_number)
+    - Use this one: [9000010000](phone_number)
+    - 09876543210
+    - It's [9898989898](phone_number)
+
+    # --- Examples for providing an ADDRESS ---
+    - my address is [456 Park Avenue, Delhi](address)
+    - please send it to [123 Blossom Gardens, Bangalore 560001](address)
+    - deliver to [Flat 5B, Sunshine Apartments, near City Mall, Koramangala, Bengaluru](address)
+    - the address is [C-42, 4th Floor, Sector 62, Noida, Uttar Pradesh](address)
+    - [House number 15, Lane 3, Ashok Nagar, Delhi - 110018](address)
+    - [22/7 Baker Street, Chennai, 600004](address)
+    - it's [15, M.G. Road, Pune, Maharashtra 411001](address)
+    - Send to [101, Diamond Heights, Andheri West, Mumbai](address)
+    - My shipping address is [Plot no 42, Jubilee Hills, Hyderabad, Telangana](address)
+    - [7, Camac Street, Elgin, Kolkata, West Bengal 700017](address)
+    - It's [B-105, Prestige Shantiniketan, Whitefield, Bangalore](address)
+    - [A-wing, flat 302, Green View Society, opposite joggers park, Pune](address)
+    - [17th Cross Road, HSR Layout, Bengaluru, Karnataka](address)
+    - [S.C.O. 120-121, Sector 17, Chandigarh](address)
+    - [4th Main, 8th cross, Malleshwaram, Bangalore](address)
+    - [Door No. 3, Gandhi Street, T. Nagar, Chennai](address)
+
+    # --- Examples for providing an EMAIL ---
+    - my email is [test@example.com](email)
+    - you can reach me at [priya.sharma@email.com](email)
+    - it's [user.name123@gmail.com](email)
+    - [info@mybusiness.co.in](email)
+    - [another.email@provider.net](email)
+    - [contact.us@company.org](email)
+    - Use [satvik-tejas@my-domain.io](email)
+    - The email address is [support@chatkart-ai.com](email)
+    - [firstname.lastname@corp.co.in](email)
+    - My mail id is [student101@university.edu](email)
+    - [test_user@gmail.com](email)
+
+    # --- Examples of providing MULTIPLE PIECES of information ---
+    - it's [Priya Sharma](name) and my number is [9876543210](phone_number)
+    - you can use [test@example.com](email) and [9988776655](phone_number)
+    - my name is [Rohan](name) and I live at [123 Main St, Mumbai](address)
+
+- intent: ask_llm
   examples: |
-    # Examples from old ask_question intent
     - What is the delivery time?
     - Do you have cash on delivery?
     - Can I return it?
-    - What if the size doesn't fit?
-    # Examples from old ask_llm intent
     - is this material good for summer?
-    - how should I wash this dress
-    - what is your return policy
-    - will this suit a tall person
-    - do you have anything similar in silk
+
+- intent: bot_challenge
+  examples: |
+    - are you a bot?
+    - are you human?
+    - am I talking to a bot?
+regex_features:
+- name: article_id
+  pattern: \d{1,2}[a-zA-Z]{3}\d{2}-\d{1,3}

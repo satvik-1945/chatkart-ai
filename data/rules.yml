@@ -1,7 +1,5 @@
 version: "3.1"
-
 rules:
-
 - rule: Say goodbye anytime the user says goodbye
   steps:
   - intent: goodbye
@@ -31,4 +29,9 @@ rules:
   - active_loop: null
   - slot_was_set:
     - requested_slot: null
-  - action: validate_profile_form # This runs our custom code after the form is filled
+  - action: validate_profile_form
+
+- rule: Respond to product inquiry by ID
+  steps:
+  - intent: request_product_by_id
+  - action: action_show_product_by_id

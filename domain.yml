@@ -7,10 +7,10 @@ intents:
   - deny
   - create_profile
   - change_address
-  - confirm_purchase
-  - ask_payment
   - inform
-  - ask_llm  
+  - ask_llm
+  - bot_challenge
+  - request_product_by_id
 
 entities:
   - name
@@ -25,83 +25,62 @@ slots:
     type: text
     influence_conversation: true
     mappings:
-      - type: custom    # Will be set manually in actions
-
+    - type: custom
   name:
     type: text
     mappings:
-      - type: from_entity
-        entity: name
+    - type: from_entity
+      entity: name
   phone_number:
     type: text
     mappings:
-      - type: from_entity
-        entity: phone_number
+    - type: from_entity
+      entity: phone_number
   address:
     type: text
     mappings:
-      - type: from_entity
-        entity: address
+    - type: from_entity
+      entity: address
   email:
     type: text
     mappings:
-      - type: from_entity
-        entity: email
-
-
-  loyalty_score:
-    type: float
-    initial_value: 0.0
-    mappings:
-      - type: custom
-
+    - type: from_entity
+      entity: email
   article_id:
     type: text
     mappings:
-      - type: from_entity
-        entity: article_id
-
+    - type: from_entity
+      entity: article_id
   delivery_tag:
     type: text
     mappings:
-      - type: from_entity
-        entity: delivery_tag
-
-  
+    - type: from_entity
+      entity: delivery_tag
 
 responses:
   utter_greet:
-    - text: "Namaste 👋, how can I help you today?"
+  - text: "Namaste 👋, how can I help you today?"
   utter_goodbye:
-    - text: "Thank you! Hope to see you again 🛍️"
+  - text: "Thank you! Hope to see you again 🛍️"
   utter_ask_name:
-    - text: "What's your full name?"
+  - text: "What's your full name?"
   utter_ask_phone_number:
-    - text: "What's your 10-digit phone number?"
+  - text: "What's your 10-digit phone number?"
   utter_ask_address:
-    - text: "What's your complete delivery address?"
+  - text: "What's your complete delivery address?"
   utter_ask_email:
-    - text: "And finally, what's your email address?"
-  utter_ask_article_id:
-    - text: "Please provide the article number you want to purchase."
-  utter_purchase_confirmed:
-    - text: "Great! Your order is confirmed. 📦"
-  utter_send_payment_info:
-    - text: "Please scan the QR code or send UPI to 9999999999@upi"
-  utter_address_updated:
-    - text: "Your address has been updated."
+  - text: "And finally, what's your email address?"
   utter_iamabot:
-    - text: "I am ChatKart AI, your virtual assistant."
+  - text: "I am ChatKart AI, your virtual assistant."
   utter_profile_created:
-    - text: "Thank you, {name}! Your profile has been created successfully. ✅"
+  - text: "Thank you, {name}! Your profile has been created successfully. ✅"
 
 actions:
   - action_session_start
-  - action_confirm_purchase
   - action_change_address
-  - action_send_payment_info
-  - action_query_llm 
+  - action_query_llm
   - validate_profile_form
+  - action_show_product_by_id
 
 forms:
   profile_form:

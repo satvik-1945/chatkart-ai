@@ -11,8 +11,8 @@ def query_ollama(prompt: str, model:str = DEFAULT_LLM_MODEL) -> str:
     payload = {"model": model, "prompt": prompt, "stream": True}
     with requests.post(full_api_url, json=payload, stream=True) as r:
         if r.status_code != 200:
-            return "Error: Failed to reach OLlama."
-        
+            return f"Ollama Error! Status: {r.status_code}, Response: {r.text}"
+
         output_text = ""
         for line in r.iter_lines():
             if line:

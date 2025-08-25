@@ -3,10 +3,7 @@ from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher  
 from rasa_sdk.events import SlotSet, EventType, SessionStarted, ActionExecuted
 from rasa_sdk.forms import FormValidationAction
-from commons.utils.MongoDBClient import MongoDBClient
 from commons.utils.CustomerService import CustomerService
-from commons.utils.InventoryService import InventoryService
-from commons.utils.VendorService import VendorService
 import logging
 
 logger = logging.getLogger(__name__)
@@ -45,41 +42,66 @@ class ValidateProfileForm(FormValidationAction):
     def name(self) -> Text:
         return "validate_profile_form"
 
+    async def run(
+        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> List[Dict]:
+        events = await super().run(dispatcher, tracker, domain)
+        # We will not clear slots automatically on submit anymore
+        # We will do it only on successful save
+        return events
+
     async def submit(
         self,
         dispatcher: CollectingDispatcher,
         tracker: Tracker,
         domain: Dict[Text, Any],
     ) -> List[Dict]:
-        
-        vendor_id = tracker.get_slot("vendor_id")
-        if not vendor_id:
-            logger.error(f"CRITICAL: vendor_id is not set for sender_id {tracker.sender_id}.")
-            dispatcher.utter_message(text="Sorry, we've run into a system error. Please try again later.")
+        """
+        Gathers data and persists it in MongoDB with robust logging and error handling.
+        """
+        try:
+            logger.info("--- Entering ValidateProfileForm.submit ---")
+            
+            vendor_id = tracker.get_slot("vendor_id")
+            phone = tracker.get_slot("phone_number")
+
+            if not vendor_id or not phone:
+                logger.error(f"Critical data missing. Vendor ID: {vendor_id}, Phone: {phone}")
+                dispatcher.utter_message(text="Sorry, I'm missing some required information to save your profile.")
+                return []
+
+            customer_data = {
+                "vendor_id": vendor_id,
+                "name": tracker.get_slot("name"),
+                "phone_number": phone,
+                "address": tracker.get_slot("address"),
+                "email": tracker.get_slot("email"),
+            }
+            logger.info(f"Customer data prepared: {customer_data}")
+
+            logger.info("Calling CustomerService.add_customer...")
+            success = CustomerService.add_customer(customer_data)
+
+            if success:
+                logger.info(f"Successfully added customer with phone: {phone}")
+                dispatcher.utter_message(response="utter_profile_created", name=customer_data['name'])
+                # On success, clear all the slots
+                return [
+                    SlotSet("name", None),
+                    SlotSet("phone_number", None),
+                    SlotSet("address", None),
+                    SlotSet("email", None),
+                ]
+            else:
+                logger.warning(f"CustomerService.add_customer returned False for phone: {phone}. Customer might already exist.")
+                dispatcher.utter_message(text=f"It looks like the phone number {phone} is already registered with us. ⚠️")
+                return []
+
+        except Exception as e:
+            # This is the most important part. It will catch ANY error.
+            logger.error(f"An unexpected error occurred in submit: {e}", exc_info=True)
+            dispatcher.utter_message(text="I'm sorry, we've run into a technical issue and couldn't save your profile. Please try again later.")
             return []
-
-        customer_data = {
-            "vendor_id": vendor_id,
-            "name": tracker.get_slot("name"),
-            "phone_number": tracker.get_slot("phone_number"),
-            "address": tracker.get_slot("address"),
-            "email": tracker.get_slot("email"),
-        }
-
-        success = CustomerService.add_customer(customer_data)
-
-        if success:
-            dispatcher.utter_message(
-                response="utter_profile_created",
-                name=customer_data['name']
-            )
-        else:
-            dispatcher.utter_message(
-                text=f"It looks like the phone number {customer_data['phone_number']} is already registered with us. ⚠️"
-            )
-
-        return []    
-
 class ActionChangeAddress(Action):
     def name(self) -> Text:
         return "action_change_address"
@@ -108,30 +130,3 @@ class ActionChangeAddress(Action):
 
         return [SlotSet("address", None), SlotSet("delivery_tag", None)] # Clear slots after use
 
-class ActionSendPaymentInfo(Action):
-    def name(self) -> Text:
-        return "action_send_payment_info"
-
-    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-        #we will replace with real upi ID
-        dispatcher.utter_message(text="Please send your payment to the UPI ID: example@upi or scan the QR code below.")
-        #will add the qr code later
-        return []
-    
-    
-class ActionConfirmPurchase(Action):
-    def name(self) -> Text:
-        return "action_confirm_purchase"
-
-    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-        article_id = tracker.get_slot("article_id")
-        delivery_tag = tracker.get_slot("delivery_tag")
-
-        if article_id:
-            dispatcher.utter_message(text=f"Great! Your order for article {article_id} is confirmed. 📦")
-            if delivery_tag:
-                dispatcher.utter_message(text=f"It will be delivered via {delivery_tag}.")
-        else:
-            dispatcher.utter_message(text="Could not confirm the purchase. Please provide the article ID.")
-
-        return []
