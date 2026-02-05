@@ -1,4 +1,5 @@
 from functools import partial
+import logging
 
 from anyio import to_thread
 from fastapi import FastAPI
@@ -6,6 +7,8 @@ from pydantic import BaseModel
 
 from utils.orchestrator import orchestrate_user_query
 
+
+logger = logging.getLogger(__name__)
 app = FastAPI(title="Chatkart LLM Orchestrator")
 
 class QueryRequest(BaseModel):
@@ -22,14 +25,18 @@ class QueryResponse(BaseModel):
 async def chatbot_query(request: QueryRequest):
     # `orchestrate_user_query` uses blocking IO (requests/pymongo), so we run it in a worker
     # thread to keep the FastAPI event loop responsive.
-    result = await to_thread.run_sync(
-        partial(
-            orchestrate_user_query,
-            user_query=request.user_query,
-            context=request.context,
-            vendor_id=request.vendor_id,
+    try:
+        result = await to_thread.run_sync(
+            partial(
+                orchestrate_user_query,
+                user_query=request.user_query,
+                context=request.context,
+                vendor_id=request.vendor_id,
+            )
         )
-    )
+    except Exception:
+        logger.exception("orchestrate_user_query failed")
+        return QueryResponse(response="I ran into an issue while processing your request.")
 
     if not isinstance(result, dict):
         result = {"response": str(result)}

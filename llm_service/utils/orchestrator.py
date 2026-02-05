@@ -4,7 +4,6 @@ import re
 from datetime import datetime, timedelta
 from typing import Any, Dict, Optional, Tuple
 
-from commons.utils.InventoryService import InventoryService
 from commons.utils.MongoDBClient import MongoDBClient
 
 from utils.ollama_client import query_ollama
@@ -13,6 +12,7 @@ from utils.ollama_client import query_ollama
 logger = logging.getLogger(__name__)
 
 ARTICLE_ID_RE = re.compile(r"\b\d{1,2}[a-zA-Z]{3}\d{2}-\d{1,3}\b")
+LOCK_KEYWORDS_RE = re.compile(r"\b(lock|reserve|hold)\b")
 
 
 def orchestrate_user_query(user_query: str, context: Dict[str, Any], vendor_id: str) -> Dict[str, Any]:
@@ -96,6 +96,8 @@ def orchestrate_user_query(user_query: str, context: Dict[str, Any], vendor_id: 
 def _select_tool(user_query: str, context: Dict[str, Any]) -> Tuple[str, Dict[str, Any]]:
     article_id = _extract_article_id(user_query)
     if article_id:
+        if LOCK_KEYWORDS_RE.search((user_query or "").lower()):
+            return "lock_product", {"article_id": article_id}
         return "show_product_by_id", {"article_id": article_id}
 
     heuristic = _select_tool_heuristic(user_query)
@@ -212,7 +214,7 @@ def _try_parse_json_object(text: str) -> Optional[Dict[str, Any]]:
 
 
 def _handle_check_inventory(vendor_id: str, user_query: str) -> str:
-    inventory = InventoryService.get_vendor_inventory(vendor_id)
+    inventory = _get_vendor_inventory(vendor_id)
     if not inventory:
         return "I couldn't find any inventory for this vendor yet."
 
@@ -233,7 +235,7 @@ def _handle_check_inventory(vendor_id: str, user_query: str) -> str:
 
 
 def _handle_make_catalog(vendor_id: str) -> str:
-    inventory = InventoryService.get_vendor_inventory(vendor_id)
+    inventory = _get_vendor_inventory(vendor_id)
     if not inventory:
         return "I couldn't find any products for this vendor yet."
 
@@ -281,6 +283,11 @@ def _handle_lock_product(vendor_id: str, article_id: str) -> str:
         return f"That product is currently locked. Please try again in a few minutes."
 
     return f"Locked {article_id} for 15 minutes. If you'd like to proceed, tell me the quantity you want."
+
+
+def _get_vendor_inventory(vendor_id: str, limit: int = 200) -> list:
+    inventory = MongoDBClient.get_collection("inventory")
+    return list(inventory.find({"vendor_id": vendor_id}).limit(limit))
 
 
 def _filter_inventory(inventory: list, user_query: str) -> list:
