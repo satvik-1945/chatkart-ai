@@ -64,7 +64,7 @@ class ActionQueryLLM(Action):
             },
         }
         try:
-            res = requests.post(LLM_URL, json=payload, timeout=120)
+            res = requests.post(LLM_URL, json=payload, timeout=60)
             res.raise_for_status()
             try:
                 body = res.json() or {}

@@ -16,6 +16,9 @@ LOCK_KEYWORDS_RE = re.compile(r"\b(lock|reserve|hold)\b", flags=re.IGNORECASE)
 
 
 def orchestrate_user_query(user_query: str, context: Dict[str, Any], vendor_id: str) -> Dict[str, Any]:
+    if not vendor_id:
+        return {"response": "Missing vendor information.", "next_action": None, "slots": None}
+
     tool, args = _select_tool(user_query=user_query, context=context)
 
     if tool == "register_user":
@@ -183,6 +186,10 @@ def _select_tool_llm(user_query: str, context: Dict[str, Any]) -> Optional[Tuple
         logger.warning("tool router returned disallowed tool", extra={"tool": tool})
         return None
 
+    if tool in {"lock_product", "show_product_by_id"}:
+        article_id = args.get("article_id")
+        args = {"article_id": article_id} if isinstance(article_id, str) and article_id else {}
+
     return tool, args
 
 
@@ -290,7 +297,8 @@ def _handle_lock_product(vendor_id: str, article_id: str) -> str:
 
 def _get_vendor_inventory(vendor_id: str, limit: int = 200) -> list:
     inventory = MongoDBClient.get_collection("inventory")
-    return list(inventory.find({"vendor_id": vendor_id}).limit(limit))
+    projection = {"name": 1, "description": 1, "price": 1, "article_id": 1}
+    return list(inventory.find({"vendor_id": vendor_id}, projection).limit(limit))
 
 
 def _filter_inventory(inventory: list, user_query: str) -> list:
