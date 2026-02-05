@@ -139,7 +139,8 @@ def _select_tool_heuristic(user_query: str) -> Optional[Tuple[str, Dict[str, Any
 def _select_tool_llm(user_query: str, context: Dict[str, Any]) -> Optional[Tuple[str, Dict[str, Any]]]:
     prompt = (
         "You are a routing layer for a commerce chatbot. "
-        "Choose the single best tool for the user query and return only strict JSON.\n\n"
+        "Choose the single best tool for the user query and return only strict JSON. "
+        "Do not include explanations, markdown, or code fences.\n\n"
         "Tools:\n"
         "- register_user: start profile registration flow\n"
         "- payment: user wants to pay or checkout\n"
@@ -192,6 +193,14 @@ def _try_parse_json_object(text: str) -> Optional[Dict[str, Any]]:
         pass
 
     codeblock_match = re.search(r"```json\s*(\{.*?\})\s*```", text, flags=re.DOTALL)
+    if codeblock_match:
+        try:
+            loaded = json.loads(codeblock_match.group(1))
+            return loaded if isinstance(loaded, dict) else None
+        except Exception:
+            return None
+
+    codeblock_match = re.search(r"```\s*(\{.*?\})\s*```", text, flags=re.DOTALL)
     if codeblock_match:
         try:
             loaded = json.loads(codeblock_match.group(1))

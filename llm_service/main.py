@@ -38,4 +38,17 @@ async def chatbot_query(request: QueryRequest):
     if not isinstance(response, str):
         result["response"] = str(response or "") or "I couldn't process your request."
 
+    allowed_actions = {"action_show_product_by_id", "profile_form"}
+    next_action = result.get("next_action")
+    if next_action not in allowed_actions:
+        result["next_action"] = None
+
+    allowed_slot_keys = {"article_id"}
+    slots = result.get("slots")
+    if not isinstance(slots, dict):
+        result["slots"] = None
+    else:
+        filtered_slots = {k: v for k, v in slots.items() if k in allowed_slot_keys}
+        result["slots"] = filtered_slots or None
+
     return QueryResponse(**result)

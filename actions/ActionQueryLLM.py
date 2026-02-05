@@ -22,9 +22,9 @@ class ActionQueryLLM(Action):
             dispatcher.utter_message(text="Sorry, I need a vendor ID to proceed.")
             return []
 
-        max_messages = 5
+        max_messages = 8
         max_len = 512
-        recent_user_messages: List[str] = []
+        recent_messages: List[Dict[str, str]] = []
         for e in reversed(tracker.events):
             event_type = None
             text = None
@@ -35,24 +35,17 @@ class ActionQueryLLM(Action):
             else:
                 event_type = getattr(e, "event", None)
                 text = getattr(e, "text", None)
-                as_dict = getattr(e, "as_dict", None)
-                if callable(as_dict):
-                    try:
-                        d = as_dict()
-                    except Exception:
-                        d = None
-                    if isinstance(d, dict):
-                        event_type = event_type or d.get("event")
-                        text = text or d.get("text")
 
-            if event_type != "user":
+            if event_type not in {"user", "bot"}:
                 continue
             if isinstance(text, str) and text:
-                recent_user_messages.append(text[:max_len])
-                if len(recent_user_messages) >= max_messages:
+                role = "user" if event_type == "user" else "bot"
+                recent_messages.append({"role": role, "text": text[:max_len]})
+                if len(recent_messages) >= max_messages:
                     break
 
-        recent_user_messages.reverse()
+        recent_messages.reverse()
+        recent_user_messages = [m["text"] for m in recent_messages if m.get("role") == "user"]
 
         allowed_context_slots = {"vendor_id", "article_id"}
         slot_values = {
@@ -66,6 +59,7 @@ class ActionQueryLLM(Action):
             "vendor_id": vendor_id,
             "context": {
                 "recent_user_messages": recent_user_messages,
+                "recent_messages": recent_messages,
                 "slots": slot_values,
             },
         }
