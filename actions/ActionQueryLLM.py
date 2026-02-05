@@ -22,15 +22,37 @@ class ActionQueryLLM(Action):
             dispatcher.utter_message(text="Sorry, I need a vendor ID to proceed.")
             return []
 
+        max_messages = 5
+        max_len = 512
         recent_user_messages: List[str] = []
-        for e in tracker.events[-10:]:
-            if not isinstance(e, dict):
+        for e in reversed(tracker.events):
+            event_type = None
+            text = None
+
+            if isinstance(e, dict):
+                event_type = e.get("event")
+                text = e.get("text")
+            else:
+                event_type = getattr(e, "event", None)
+                text = getattr(e, "text", None)
+                as_dict = getattr(e, "as_dict", None)
+                if callable(as_dict):
+                    try:
+                        d = as_dict()
+                    except Exception:
+                        d = None
+                    if isinstance(d, dict):
+                        event_type = event_type or d.get("event")
+                        text = text or d.get("text")
+
+            if event_type != "user":
                 continue
-            if e.get("event") != "user":
-                continue
-            text = e.get("text")
             if isinstance(text, str) and text:
-                recent_user_messages.append(text)
+                recent_user_messages.append(text[:max_len])
+                if len(recent_user_messages) >= max_messages:
+                    break
+
+        recent_user_messages.reverse()
 
         allowed_context_slots = {"vendor_id", "article_id"}
         slot_values = {

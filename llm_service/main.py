@@ -31,4 +31,11 @@ async def chatbot_query(request: QueryRequest):
         )
     )
 
+    if not isinstance(result, dict):
+        result = {"response": str(result)}
+
+    response = result.get("response")
+    if not isinstance(response, str):
+        result["response"] = str(response or "") or "I couldn't process your request."
+
     return QueryResponse(**result)
