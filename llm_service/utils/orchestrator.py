@@ -156,11 +156,13 @@ def _select_tool_llm(user_query: str, context: Dict[str, Any]) -> Optional[Tuple
     raw = query_ollama(prompt)
     parsed = _try_parse_json_object(raw)
     if not parsed:
+        logger.warning("tool router returned unparseable output", extra={"raw_snippet": (raw or "")[:300]})
         return None
 
     tool = parsed.get("tool")
     args = parsed.get("arguments")
     if not isinstance(tool, str) or not isinstance(args, dict):
+        logger.warning("tool router returned invalid structure", extra={"parsed": parsed})
         return None
 
     allowed = {
@@ -173,6 +175,7 @@ def _select_tool_llm(user_query: str, context: Dict[str, Any]) -> Optional[Tuple
         "general_question",
     }
     if tool not in allowed:
+        logger.warning("tool router returned disallowed tool", extra={"tool": tool})
         return None
 
     return tool, args
@@ -236,6 +239,8 @@ def _handle_make_catalog(vendor_id: str) -> str:
 
 
 def _handle_lock_product(vendor_id: str, article_id: str) -> str:
+    # Anonymous, time-based lock with a fixed TTL. This is intended as a lightweight
+    # reservation mechanism; it does not currently track the lock owner.
     now = datetime.utcnow()
     lock_until = now + timedelta(minutes=15)
 

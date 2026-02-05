@@ -32,12 +32,19 @@ class ActionQueryLLM(Action):
             if isinstance(text, str) and text:
                 recent_user_messages.append(text)
 
+        allowed_context_slots = {"vendor_id", "article_id"}
+        slot_values = {
+            k: v
+            for k, v in tracker.current_slot_values().items()
+            if k in allowed_context_slots
+        }
+
         payload = {
             "user_query": user_query,
             "vendor_id": vendor_id,
             "context": {
                 "recent_user_messages": recent_user_messages,
-                "slots": tracker.current_slot_values(),
+                "slots": slot_values,
             },
         }
         try:
@@ -61,7 +68,9 @@ class ActionQueryLLM(Action):
             dispatcher.utter_message(text="I couldn't process the response from the AI service. Please try again.")
             return []
 
-        llm_response = body.get("response", "I couldn't process your request.")
+        llm_response = body.get("response")
+        if not isinstance(llm_response, str):
+            llm_response = ""
         next_action = body.get("next_action")
         slots = body.get("slots")
 
@@ -74,14 +83,18 @@ class ActionQueryLLM(Action):
                 else:
                     logger.warning("Ignoring unexpected slot from LLM", extra={"slot": k})
 
-        if llm_response:
-            dispatcher.utter_message(text=llm_response)
-
         allowed_actions = {"action_show_product_by_id", "profile_form"}
         if isinstance(next_action, str) and next_action:
             if next_action in allowed_actions:
                 events.append(FollowupAction(next_action))
             else:
                 logger.warning("Ignoring unexpected next_action from LLM", extra={"next_action": next_action})
+
+        if not llm_response and isinstance(next_action, str) and next_action in allowed_actions:
+            llm_response = "Got it, let me handle that for you."
+        if not llm_response:
+            llm_response = "I couldn't process your request."
+
+        dispatcher.utter_message(text=llm_response)
 
         return events

@@ -20,6 +20,8 @@ class QueryResponse(BaseModel):
 
 @app.post("/chatbot/query", response_model=QueryResponse)
 async def chatbot_query(request: QueryRequest):
+    # `orchestrate_user_query` uses blocking IO (requests/pymongo), so we run it in a worker
+    # thread to keep the FastAPI event loop responsive.
     result = await to_thread.run_sync(
         partial(
             orchestrate_user_query,
