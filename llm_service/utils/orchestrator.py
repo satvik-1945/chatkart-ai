@@ -269,6 +269,7 @@ def _handle_lock_product(vendor_id: str, article_id: str) -> str:
             "$set": {
                 "locked_until": lock_until,
                 "locked_at": now,
+                "locked_by": "anonymous",
             }
         },
     )
