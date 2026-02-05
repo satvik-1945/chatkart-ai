@@ -1,3 +1,6 @@
+from functools import partial
+
+from anyio import to_thread
 from fastapi import FastAPI
 from pydantic import BaseModel
 
@@ -17,10 +20,13 @@ class QueryResponse(BaseModel):
 
 @app.post("/chatbot/query", response_model=QueryResponse)
 async def chatbot_query(request: QueryRequest):
-    result = orchestrate_user_query(
-        user_query=request.user_query,
-        context=request.context,
-        vendor_id=request.vendor_id,
+    result = await to_thread.run_sync(
+        partial(
+            orchestrate_user_query,
+            user_query=request.user_query,
+            context=request.context,
+            vendor_id=request.vendor_id,
+        )
     )
 
     return QueryResponse(**result)

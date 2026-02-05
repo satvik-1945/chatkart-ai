@@ -1,4 +1,5 @@
 import json
+import logging
 import re
 from datetime import datetime, timedelta
 from typing import Any, Dict, Optional, Tuple
@@ -8,6 +9,8 @@ from commons.utils.MongoDBClient import MongoDBClient
 
 from utils.ollama_client import query_ollama
 
+
+logger = logging.getLogger(__name__)
 
 ARTICLE_ID_RE = re.compile(r"\b\d{1,2}[a-zA-Z]{3}\d{2}-\d{1,3}\b")
 
@@ -33,6 +36,7 @@ def orchestrate_user_query(user_query: str, context: Dict[str, Any], vendor_id: 
         try:
             response = _handle_check_inventory(vendor_id=vendor_id, user_query=user_query)
         except Exception:
+            logger.exception("check_inventory failed", extra={"vendor_id": vendor_id})
             response = "I ran into an issue while checking the inventory. Please try again in a moment."
         return {
             "response": response,
@@ -44,6 +48,7 @@ def orchestrate_user_query(user_query: str, context: Dict[str, Any], vendor_id: 
         try:
             response = _handle_make_catalog(vendor_id=vendor_id)
         except Exception:
+            logger.exception("make_catalog failed", extra={"vendor_id": vendor_id})
             response = "I ran into an issue while generating the catalog. Please try again in a moment."
         return {
             "response": response,
@@ -63,6 +68,7 @@ def orchestrate_user_query(user_query: str, context: Dict[str, Any], vendor_id: 
         try:
             response = _handle_lock_product(vendor_id=vendor_id, article_id=article_id)
         except Exception:
+            logger.exception("lock_product failed", extra={"vendor_id": vendor_id, "article_id": article_id})
             response = "I ran into an issue while locking that product. Please try again in a moment."
 
         return {"response": response, "next_action": None, "slots": None}
@@ -190,31 +196,6 @@ def _try_parse_json_object(text: str) -> Optional[Dict[str, Any]]:
         except Exception:
             return None
 
-    obj_text = _extract_first_balanced_braces(text)
-    if not obj_text:
-        return None
-
-    try:
-        loaded = json.loads(obj_text)
-        return loaded if isinstance(loaded, dict) else None
-    except Exception:
-        return None
-
-
-def _extract_first_balanced_braces(text: str) -> Optional[str]:
-    start = text.find("{")
-    if start == -1:
-        return None
-
-    depth = 0
-    for i in range(start, len(text)):
-        ch = text[i]
-        if ch == "{":
-            depth += 1
-        elif ch == "}":
-            depth -= 1
-            if depth == 0:
-                return text[start : i + 1]
     return None
 
 
@@ -255,10 +236,6 @@ def _handle_make_catalog(vendor_id: str) -> str:
 
 
 def _handle_lock_product(vendor_id: str, article_id: str) -> str:
-    product = InventoryService.get_article_by_id(vendor_id, article_id)
-    if not product:
-        return f"I couldn't find product '{article_id}' for this vendor."
-
     now = datetime.utcnow()
     lock_until = now + timedelta(minutes=15)
 
@@ -279,6 +256,9 @@ def _handle_lock_product(vendor_id: str, article_id: str) -> str:
             }
         },
     )
+
+    if result.matched_count == 0:
+        return f"I couldn't find product '{article_id}' for this vendor."
 
     if result.modified_count == 0:
         return f"That product is currently locked. Please try again in a few minutes."

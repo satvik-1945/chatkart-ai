@@ -30,13 +30,13 @@ class ActionQueryLLM(Action):
             res = requests.post(LLM_URL, json=payload, timeout=120)
             res.raise_for_status()
             body = res.json() or {}
-            llm_response = body.get("response", "I couldn't process your request.")
-            next_action = body.get("next_action")
-            slots = body.get("slots")
         except requests.exceptions.RequestException as e:
-            llm_response = f"Error communicating with LLM service: {str(e)}"
-            next_action = None
-            slots = None
+            dispatcher.utter_message(text=f"Error communicating with LLM service: {str(e)}")
+            return []
+
+        llm_response = body.get("response", "I couldn't process your request.")
+        next_action = body.get("next_action")
+        slots = body.get("slots")
 
         events: list[Dict[str, Any]] = []
         if isinstance(slots, dict):
