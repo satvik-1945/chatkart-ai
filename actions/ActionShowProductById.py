@@ -14,7 +14,7 @@ class ActionShowProductById(Action):
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         vendor_id = tracker.get_slot("vendor_id")
         
-        article_id = next(tracker.get_latest_entity_values("article_id"), None)
+        article_id = next(tracker.get_latest_entity_values("article_id"), None) or tracker.get_slot("article_id")
 
         if article_id:
             # --- HAPPY PATH: User provided the full ID ---

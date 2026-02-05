@@ -1,7 +1,8 @@
 import requests
-from typing import Dict, Any,Text,List
+from typing import Any, Dict
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
+from rasa_sdk.events import FollowupAction, SlotSet
 
 LLM_URL = "http://llm_service:8000/chatbot/query" 
 
@@ -26,11 +27,26 @@ class ActionQueryLLM(Action):
             }
         }
         try:
-            res = requests.post(LLM_URL, json=payload,timeout=120)
+            res = requests.post(LLM_URL, json=payload, timeout=120)
             res.raise_for_status()
-            llm_response = res.json().get("response", "I couldn't process your request.")
+            body = res.json() or {}
+            llm_response = body.get("response", "I couldn't process your request.")
+            next_action = body.get("next_action")
+            slots = body.get("slots")
         except requests.exceptions.RequestException as e:
             llm_response = f"Error communicating with LLM service: {str(e)}"
-        
-        dispatcher.utter_message(text=llm_response)
-        return []
+            next_action = None
+            slots = None
+
+        events: list[Dict[str, Any]] = []
+        if isinstance(slots, dict):
+            for k, v in slots.items():
+                events.append(SlotSet(k, v))
+
+        if llm_response:
+            dispatcher.utter_message(text=llm_response)
+
+        if isinstance(next_action, str) and next_action:
+            events.append(FollowupAction(next_action))
+
+        return events
