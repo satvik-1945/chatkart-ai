@@ -72,8 +72,9 @@ class ActionQueryLLM(Action):
                 logger.exception("Invalid JSON from LLM service", extra={"status_code": res.status_code})
                 dispatcher.utter_message(text="I couldn't process the response from the AI service. Please try again.")
                 return []
-        except requests.exceptions.RequestException as e:
-            dispatcher.utter_message(text=f"Error communicating with LLM service: {str(e)}")
+        except requests.exceptions.RequestException:
+            logger.exception("Error communicating with LLM service")
+            dispatcher.utter_message(text="I'm having trouble reaching the AI service right now. Please try again in a moment.")
             return []
 
         if not isinstance(body, dict):
