@@ -258,7 +258,10 @@ def _handle_lock_product(vendor_id: str, article_id: str) -> str:
     )
 
     if result.matched_count == 0:
-        return f"I couldn't find product '{article_id}' for this vendor."
+        exists = inventory.count_documents({"vendor_id": vendor_id, "article_id": article_id}, limit=1) > 0
+        if not exists:
+            return f"I couldn't find product '{article_id}' for this vendor."
+        return "That product is currently locked. Please try again in a few minutes."
 
     if result.modified_count == 0:
         return f"That product is currently locked. Please try again in a few minutes."

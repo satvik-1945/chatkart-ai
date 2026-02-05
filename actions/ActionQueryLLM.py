@@ -1,17 +1,20 @@
+import logging
 import requests
-from typing import Any, Dict
+from typing import Any, Dict, List
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.events import FollowupAction, SlotSet
 
 LLM_URL = "http://llm_service:8000/chatbot/query" 
 
+logger = logging.getLogger(__name__)
+
 class ActionQueryLLM(Action):
 
     def name(self) -> str:
         return "action_query_llm"
 
-    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[str, Any]) -> list[Dict[str, Any]]:
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[str, Any]) -> List[Dict[str, Any]]:
         user_query = tracker.latest_message.get('text')
         vendor_id = tracker.get_slot("vendor_id")
         
@@ -29,7 +32,12 @@ class ActionQueryLLM(Action):
         try:
             res = requests.post(LLM_URL, json=payload, timeout=120)
             res.raise_for_status()
-            body = res.json() or {}
+            try:
+                body = res.json() or {}
+            except ValueError:
+                logger.exception("Invalid JSON from LLM service", extra={"status_code": res.status_code})
+                dispatcher.utter_message(text="I couldn't process the response from the AI service. Please try again.")
+                return []
         except requests.exceptions.RequestException as e:
             dispatcher.utter_message(text=f"Error communicating with LLM service: {str(e)}")
             return []
@@ -38,7 +46,7 @@ class ActionQueryLLM(Action):
         next_action = body.get("next_action")
         slots = body.get("slots")
 
-        events: list[Dict[str, Any]] = []
+        events: List[Dict[str, Any]] = []
         if isinstance(slots, dict):
             for k, v in slots.items():
                 events.append(SlotSet(k, v))
