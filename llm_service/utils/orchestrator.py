@@ -12,7 +12,7 @@ from utils.ollama_client import query_ollama
 logger = logging.getLogger(__name__)
 
 ARTICLE_ID_RE = re.compile(r"\b\d{1,2}[a-zA-Z]{3}\d{2}-\d{1,3}\b")
-LOCK_KEYWORDS_RE = re.compile(r"\b(lock|reserve|hold)\b")
+LOCK_KEYWORDS_RE = re.compile(r"\b(lock|reserve|hold)\b", flags=re.IGNORECASE)
 
 
 def orchestrate_user_query(user_query: str, context: Dict[str, Any], vendor_id: str) -> Dict[str, Any]:
@@ -96,7 +96,7 @@ def orchestrate_user_query(user_query: str, context: Dict[str, Any], vendor_id: 
 def _select_tool(user_query: str, context: Dict[str, Any]) -> Tuple[str, Dict[str, Any]]:
     article_id = _extract_article_id(user_query)
     if article_id:
-        if LOCK_KEYWORDS_RE.search((user_query or "").lower()):
+        if LOCK_KEYWORDS_RE.search(user_query or ""):
             return "lock_product", {"article_id": article_id}
         return "show_product_by_id", {"article_id": article_id}
 
@@ -133,7 +133,9 @@ def _select_tool_heuristic(user_query: str) -> Optional[Tuple[str, Dict[str, Any
 
     if any(k in text for k in ["lock", "reserve", "hold"]):
         article_id = _extract_article_id(user_query)
-        return "lock_product", {"article_id": article_id} if article_id else {}
+        if article_id:
+            return "lock_product", {"article_id": article_id}
+        return "lock_product", {}
 
     return None
 

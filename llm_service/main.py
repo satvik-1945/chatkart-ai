@@ -23,6 +23,9 @@ class QueryResponse(BaseModel):
 
 @app.post("/chatbot/query", response_model=QueryResponse)
 async def chatbot_query(request: QueryRequest):
+    if not request.vendor_id:
+        return QueryResponse(response="Missing vendor information.")
+
     # `orchestrate_user_query` uses blocking IO (requests/pymongo), so we run it in a worker
     # thread to keep the FastAPI event loop responsive.
     try:
