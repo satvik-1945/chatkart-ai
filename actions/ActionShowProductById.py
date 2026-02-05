@@ -15,6 +15,13 @@ class ActionShowProductById(Action):
         vendor_id = tracker.get_slot("vendor_id")
         
         article_id = next(tracker.get_latest_entity_values("article_id"), None)
+        if not article_id:
+            user_text = tracker.latest_message.get('text', '')
+            match = re.search(r'\b\d{1,2}[a-zA-Z]{3}\d{2}-\d{1,3}\b', user_text)
+            if match:
+                article_id = match.group(0)
+            else:
+                article_id = tracker.get_slot("article_id")
 
         if article_id:
             # --- HAPPY PATH: User provided the full ID ---
