@@ -25,14 +25,9 @@ class ActionSessionStart(Action):
 
         # FOR NOW, WE WILL HARDCODE IT FOR DEVELOPMENT AND TESTING.
         vendor_id = "vendor_123" # Replace with your logic later
-
         events = [SessionStarted()]
-
         events.append(SlotSet("vendor_id", vendor_id))
-
-        # it tells Rasa to continue with the default behavior
         events.append(ActionExecuted("action_listen"))
-
         logger.info(f"Session started for vendor_id: {vendor_id}")
 
         return events
@@ -42,14 +37,6 @@ class ValidateProfileForm(FormValidationAction):
     def name(self) -> Text:
         return "validate_profile_form"
 
-    async def run(
-        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
-    ) -> List[Dict]:
-        events = await super().run(dispatcher, tracker, domain)
-        # We will not clear slots automatically on submit anymore
-        # We will do it only on successful save
-        return events
-
     async def submit(
         self,
         dispatcher: CollectingDispatcher,
@@ -57,16 +44,17 @@ class ValidateProfileForm(FormValidationAction):
         domain: Dict[Text, Any],
     ) -> List[Dict]:
         """
-        Gathers data and persists it in MongoDB with robust logging and error handling.
+        This method is called ONLY ONCE after all required slots are filled.
+        It gathers the complete data and persists it in MongoDB.
         """
         try:
-            logger.info("--- Entering ValidateProfileForm.submit ---")
+            logger.info("--- Form complete, entering submit method ---")
             
             vendor_id = tracker.get_slot("vendor_id")
             phone = tracker.get_slot("phone_number")
 
             if not vendor_id or not phone:
-                logger.error(f"Critical data missing. Vendor ID: {vendor_id}, Phone: {phone}")
+                logger.error(f"Critical data missing in submit. Vendor ID: {vendor_id}, Phone: {phone}")
                 dispatcher.utter_message(text="Sorry, I'm missing some required information to save your profile.")
                 return []
 
@@ -77,7 +65,7 @@ class ValidateProfileForm(FormValidationAction):
                 "address": tracker.get_slot("address"),
                 "email": tracker.get_slot("email"),
             }
-            logger.info(f"Customer data prepared: {customer_data}")
+            logger.info(f"Complete customer data prepared: {customer_data}")
 
             logger.info("Calling CustomerService.add_customer...")
             success = CustomerService.add_customer(customer_data)
@@ -85,23 +73,18 @@ class ValidateProfileForm(FormValidationAction):
             if success:
                 logger.info(f"Successfully added customer with phone: {phone}")
                 dispatcher.utter_message(response="utter_profile_created", name=customer_data['name'])
-                # On success, clear all the slots
-                return [
-                    SlotSet("name", None),
-                    SlotSet("phone_number", None),
-                    SlotSet("address", None),
-                    SlotSet("email", None),
-                ]
+                # On success, clear all the form slots
+                return [SlotSet("name", None), SlotSet("phone_number", None), SlotSet("address", None), SlotSet("email", None)]
             else:
                 logger.warning(f"CustomerService.add_customer returned False for phone: {phone}. Customer might already exist.")
                 dispatcher.utter_message(text=f"It looks like the phone number {phone} is already registered with us. ⚠️")
                 return []
 
         except Exception as e:
-            # This is the most important part. It will catch ANY error.
             logger.error(f"An unexpected error occurred in submit: {e}", exc_info=True)
-            dispatcher.utter_message(text="I'm sorry, we've run into a technical issue and couldn't save your profile. Please try again later.")
+            dispatcher.utter_message(text="I'm sorry, we've run into a technical issue and couldn't save your profile.")
             return []
+
 class ActionChangeAddress(Action):
     def name(self) -> Text:
         return "action_change_address"
