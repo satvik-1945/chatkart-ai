@@ -8,7 +8,7 @@ The bot can operate on messaging channels like **WhatsApp Business** or **Facebo
 
 ## 🏗 System Architecture
 
-![ChatKart Architecture](assets/assets/High level Architecture.drawio.png)
+![ChatKart Architecture](assets/High level Architecture.drawio.png)
 
 ChatKart follows a layered architecture:
 
