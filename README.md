@@ -6,6 +6,10 @@ The bot can operate on messaging channels like **WhatsApp Business** or **Facebo
 
 ---
 
+<img width="821" height="636" alt="image" src="https://github.com/user-attachments/assets/4a1629f1-038f-43a8-b03c-49253bff1a3a" />
+
+---
+
 ## 📦 Components
 
 ### 1. **Rasa NLU & Core**
