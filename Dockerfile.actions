@@ -11,6 +11,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 # Install extra Python packages for actions
 COPY requirements-actions.txt /app/
 RUN pip install -r requirements-actions.txt && \
-    pip install --upgrade git+https://github.com/satvik-1945/chatkart-commons.git  
+    pip install --upgrade git+https://github.com/satvik-1945/chatkart-commons.git@7a28956f1e4fda741db44b73117e645990d01969
 
-CMD ["start", "--actions", "actions"]   
+CMD ["start", "--actions", "actions"]

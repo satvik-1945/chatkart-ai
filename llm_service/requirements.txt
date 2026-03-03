@@ -2,3 +2,4 @@ fastapi
 uvicorn
 requests
 pydantic
+git+https://github.com/satvik-1945/chatkart-commons.git@7a28956f1e4fda741db44b73117e645990d01969
